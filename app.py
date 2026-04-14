@@ -1,68 +1,14 @@
 import random
 import streamlit as st
 
-def get_range_for_difficulty(difficulty: str):
-    if difficulty == "Easy":
-        return 1, 20
-    if difficulty == "Normal":
-        return 1, 50
-    if difficulty == "Hard":
-        return 1, 100
-    return 1, 100
-
-
-def parse_guess(raw: str):
-    if raw is None:
-        return False, None, "Enter a guess."
-
-    if raw == "":
-        return False, None, "Enter a guess."
-
-    try:
-        if "." in raw:
-            value = int(float(raw))
-        else:
-            value = int(raw)
-    except Exception:
-        return False, None, "That is not a number."
-
-    return True, value, None
-
-
-def check_guess(guess, secret):
-    if guess == secret:
-        return "Win", "🎉 Correct!"
-
-    try:
-        if guess > secret:
-            return "Too High", "📈 Go HIGHER!"
-        else:
-            return "Too Low", "📉 Go LOWER!"
-    except TypeError:
-        g = str(guess)
-        if g == secret:
-            return "Win", "🎉 Correct!"
-        if g > secret:
-            return "Too High", "📈 Go HIGHER!"
-        return "Too Low", "📉 Go LOWER!"
-
-
-def update_score(current_score: int, outcome: str, attempt_number: int):
-    if outcome == "Win":
-        points = 100 - 10 * (attempt_number + 1)
-        if points < 10:
-            points = 10
-        return current_score + points
-
-    if outcome == "Too High":
-        if attempt_number % 2 == 0:
-            return current_score + 5
-        return current_score - 5
-
-    if outcome == "Too Low":
-        return current_score - 5
-
-    return current_score
+from logic_utils import (
+    get_range_for_difficulty,
+    get_attempt_limit,
+    parse_guess,
+    check_guess,
+    update_score,
+)
+from ai_feature import generate_hint, analyze_pattern, get_suggestion
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
@@ -77,12 +23,7 @@ difficulty = st.sidebar.selectbox(
     index=1,
 )
 
-attempt_limit_map = {
-    "Easy": 6,
-    "Normal": 8,
-    "Hard": 5,
-}
-attempt_limit = attempt_limit_map[difficulty]
+attempt_limit = get_attempt_limit(difficulty)
 
 low, high = get_range_for_difficulty(difficulty)
 
@@ -107,7 +48,7 @@ if "history" not in st.session_state:
 st.subheader("Make a guess")
 
 st.info(
-    f"Guess a number between 1 and 100. "
+    f"Guess a number between {low} and {high}. "
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
 
@@ -168,19 +109,47 @@ if submit:
         if show_hint:
             st.warning(message)
 
+        # 🤖 AI Feature: Generate contextual hint
+        ai_hint, hint_confidence = generate_hint(
+            secret=st.session_state.secret,
+            guess=guess_int,
+            attempts=st.session_state.attempts
+        )
+        if ai_hint and hint_confidence > 0.5:
+            st.info(f"💡 Hint: {ai_hint} (confidence: {hint_confidence:.0%})")
+
         st.session_state.score = update_score(
             current_score=st.session_state.score,
             outcome=outcome,
             attempt_number=st.session_state.attempts,
         )
 
+        # 🤖 AI Feature: Analyze guessing pattern
+        pattern = analyze_pattern(
+            history=st.session_state.history,
+            secret=st.session_state.secret
+        )
+        if pattern.get("insight") and pattern.get("confidence", 0) > 0.4:
+            st.caption(f"📊 Pattern: {pattern['insight']} (confidence: {pattern['confidence']:.0%})")
+
         if outcome == "Win":
             st.balloons()
             st.session_state.status = "won"
+
+            # 🤖 AI Feature: Provide congratulations and suggestion
+            suggestion, suggestion_confidence = get_suggestion(
+                score=st.session_state.score,
+                attempts=st.session_state.attempts,
+                history=st.session_state.history,
+                difficulty=difficulty
+            )
+
             st.success(
                 f"You won! The secret was {st.session_state.secret}. "
                 f"Final score: {st.session_state.score}"
             )
+            if suggestion and suggestion_confidence > 0.5:
+                st.info(f"🎯 {suggestion} (confidence: {suggestion_confidence:.0%})")
         else:
             if st.session_state.attempts >= attempt_limit:
                 st.session_state.status = "lost"

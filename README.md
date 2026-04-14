@@ -1,38 +1,61 @@
-# 🎮 Game Glitch Investigator: The Impossible Guesser
+Phase 1: Functionality Extension (Assign)
+TFs should:
+[x]Identify which new AI feature will be added to your project.
+Reliability or Testing System	You include ways to measure or test how well your AI performs.	A script that checks if your AI gives consistent answers.
 
-## 🚨 The Situation
+[x]Verify the feature is actually used in logic
+[x]Detect shallow or fake integrations
+added 
+[x]Trace data flow end‑to‑end
+Input → Processing → Output
 
-You asked an AI to build a simple "Number Guessing Game" using Streamlit.
-It wrote the code, ran away, and now the game is unplayable. 
+User selects difficulty in Streamlit sidebar
+get_range_for_difficulty(difficulty) → returns (low, high)
+Used to create st.session_state.secret = random.randint(low, high)
+User guess flow:
 
-- You can't win.
-- The hints lie to you.
-- The secret number seems to have commitment issues.
+User enters guess → parse_guess(raw_input) → validates input
+Result goes to check_guess(guess, secret) → returns outcome
+Outcome goes to update_score(current_score, outcome, attempt) → new score
 
-## 🛠️ Setup
+Phase 2: Architecture Diagram (Review)
+TFs should:
+[x]Create a system diagram or at least understand how adding in a new AI feature will fit into your system. 
+[x]Confirm alignment with code
+Flag mismatches
+- hard coded range 
+- logic ui coupling
+- missing ai hookpoints :D
+- History not analyzed
 
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run the broken app: `python -m streamlit run app.py`
+Phase 3: Documentation (Review)
+TFs should:
+[x]Understand what is going in the README
 
-## 🕵️‍♂️ Your Mission
-
-1. **Play the game.** Open the "Developer Debug Info" tab in the app to see the secret number. Try to win.
-2. **Find the State Bug.** Why does the secret number change every time you click "Submit"? Ask ChatGPT: *"How do I keep a variable from resetting in Streamlit when I click a button?"*
-3. **Fix the Logic.** The hints ("Higher/Lower") are wrong. Fix them.
-4. **Refactor & Test.** - Move the logic into `logic_utils.py`.
-   - Run `pytest` in your terminal.
-   - Keep fixing until all tests pass!
-
-## 📝 Document Your Experience
-
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
-
-## 📸 Demo
-
-- [ ] [Insert a screenshot of your fixed, winning game here]
-
-## 🚀 Stretch Features
-
-- [ ] [If you choose to complete Challenge 4, insert a screenshot of your Enhanced Game UI here]
+Phase 4: Reliability and Testing (Review)
+TFs should:
+[x]Identify what reliability signal is used
+    - Confidence scoring (0.0-1.0): Each AI output includes confidence
+    - Determinism: All functions produce same output for same input
+    - Logging: All operations logged for traceability
+[x]Include at least one way to test or measure its reliability
+[x]Automated tests
+    - test_reliability.py: 40+ test cases
+    - test_glitchy_guesser.py: Game logic tests
+[x]Confidence scoring
+    - generate_hint() returns (hint, confidence)
+    - analyze_pattern() returns {strategy, efficiency, confidence}
+    - get_suggestion() returns (suggestion, confidence)
+    - Confidence increases with more data
+[x]Logging and error handling
+    - ai_logger configured in ai_feature.py
+    - All AI functions wrapped in try-except
+    - Graceful fallbacks for errors
+[x]Human evaluation
+    - Confidence scores visible in Streamlit UI
+    - Outputs human-readable with emojis
+    - Users can assess quality directly
+[x]Be able to document your findings from your testing
+    - reliability_report.json (detailed metrics)
+    - RELIABILITY_FINDINGS.md (summary)
+    - RELIABILITY_TESTING_COMPLETE.md (full documentation)
