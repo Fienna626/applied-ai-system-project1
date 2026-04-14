@@ -35,27 +35,27 @@ TFs should:
 Phase 4: Reliability and Testing (Review)
 TFs should:
 [x]Identify what reliability signal is used
-    - Confidence scoring (0.0-1.0): Each AI output includes confidence
-    - Determinism: All functions produce same output for same input
-    - Logging: All operations logged for traceability
+- Confidence scoring (0.0-1.0): Each AI output includes confidence
+- Determinism: All functions produce same output for same input
+- Logging: All operations logged for traceability
 [x]Include at least one way to test or measure its reliability
 [x]Automated tests
-    - test_reliability.py: 40+ test cases
-    - test_glitchy_guesser.py: Game logic tests
+- test_reliability.py: 40+ test cases
+- test_glitchy_guesser.py: Game logic tests
 [x]Confidence scoring
-    - generate_hint() returns (hint, confidence)
-    - analyze_pattern() returns {strategy, efficiency, confidence}
-    - get_suggestion() returns (suggestion, confidence)
-    - Confidence increases with more data
+- generate_hint() returns (hint, confidence)
+- analyze_pattern() returns {strategy, efficiency, confidence}
+- get_suggestion() returns (suggestion, confidence)
+- Confidence increases with more data
 [x]Logging and error handling
-    - ai_logger configured in ai_feature.py
-    - All AI functions wrapped in try-except
-    - Graceful fallbacks for errors
+- ai_logger configured in ai_feature.py
+- All AI functions wrapped in try-except
+- Graceful fallbacks for errors
 [x]Human evaluation
-    - Confidence scores visible in Streamlit UI
-    - Outputs human-readable with emojis
-    - Users can assess quality directly
+- Confidence scores visible in Streamlit UI
+- Outputs human-readable with emojis
+- Users can assess quality directly
 [x]Be able to document your findings from your testing
-    - reliability_report.json (detailed metrics)
-    - RELIABILITY_FINDINGS.md (summary)
-    - RELIABILITY_TESTING_COMPLETE.md (full documentation)
+- reliability_report.json (detailed metrics)
+- RELIABILITY_FINDINGS.md (summary)
+- RELIABILITY_TESTING_COMPLETE.md (full documentation)
